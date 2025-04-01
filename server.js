@@ -3,19 +3,33 @@ require('dotenv').config();
 const express     = require('express');
 const bodyParser  = require('body-parser');
 const cors        = require('cors');
-
 const apiRoutes         = require('./routes/api.js');
 const fccTestingRoutes  = require('./routes/fcctesting.js');
+const helmet = require('helmet');
 const runner            = require('./test-runner');
-
+const {connectDB} = require('./controllers/db.controller.js');
 const app = express();
 
+// Configure the Content-Security-Policy header.
+app.use(
+  helmet({
+    contentSecurityPolicy: {
+      directives: {
+        "script-src": ["'self'"],
+        "style-src":["'self'"]
+      },
+    },
+  }),
+);
 app.use('/public', express.static(process.cwd() + '/public'));
 
 app.use(cors({origin: '*'})); //For FCC testing purposes only
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
+
+connectDB();
+
 
 //Index page (static HTML)
 app.route('/')
